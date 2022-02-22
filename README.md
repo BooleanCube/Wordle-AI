@@ -17,6 +17,6 @@
 ### Artificial Intelligence Algorithms:
 
 - **Filtering**: <br>
-Based on the given feedback the algorithm will filter all possible words until the feedback says the word is correct! Here is the [English Dictionary Used](https://www-cs-faculty.stanford.edu/~knuth/sgb-words.txt) with this algorithm. The algorithm is still extremely buggy because the way I send feedback is more complex than that of Wordle themselves to make the algorithm work better. Due to this the algorithm shows a winning chance less than it should be. Here is the [filtering algorithm](https://github.com/BooleanCube/Wordle-AI/commit/f1a48c7399d98b3ecf45ad85f349b180c8f7af46) with a higher winning chance on Wordle.
+Based on the given feedback the algorithm will filter all possible words until the feedback says the word is correct! Here is the [English Dictionary Used](https://www-cs-faculty.stanford.edu/~knuth/sgb-words.txt) with this algorithm. The algorithm is still extremely buggy because the way I send feedback is more complex than that of Wordle themselves to make the algorithm work better. Due to this the algorithm shows a winning chance less than it should be. The *Filtering Basic Algorithm* is the same algorithm however it takes and processes the feedback differently and more accordingly for wordle thus the higher winning percentage.
 
 *written by BooleanCube :]*
