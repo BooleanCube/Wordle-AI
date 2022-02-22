@@ -36,8 +36,6 @@ public class Tools {
     public static String getFeedback(String word, String guess) {
         StringBuilder r = new StringBuilder();
         for(int i=0; i<5; i++) {
-            if(guess.length()!=5)
-                System.out.println(word);
             char w = word.charAt(i);
             char g = guess.charAt(i);
             if(w != g) {

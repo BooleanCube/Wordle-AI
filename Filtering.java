@@ -35,8 +35,6 @@ public class Filtering {
         Tools.initWordList(words);
         Tools.initFreqList(words, letterFrequency);
         for(String word : words) {
-            if(word.equalsIgnoreCase("faxer"))
-                word = word;
             int tries = 1;
             Check check = new Check();
             String guess = find(check);
@@ -54,10 +52,12 @@ public class Filtering {
         StringBuilder r = new StringBuilder();
         int win = 0;
         for(int i=0; i<attemptTracker.length; i++) {
-            r.append(i+1).append(" tries: ").append(attemptTracker[i]).append(" - ").append(attemptTracker[i] / 5757d).append("%\n");
+            if(i==attemptTracker.length-1) r.append("Failed tries: ").append(attemptTracker[i]).append(" - ").append(attemptTracker[i] / 5757d).append(" %\n");
+            else r.append(i+1).append(" tries: ").append(attemptTracker[i]).append(" - ").append(attemptTracker[i] / 5757d).append(" %\n");
             if(i<6) win += attemptTracker[i];
         }
-        r.append("\n").append("Win Percentage: ").append(win/5757f).append("%\n");
+        r.append("Win Percentage: ").append(win/5757d*100d).append(" %\n");
+        r.append("---------------------------------------------------\n");
         return r.toString();
     }
 
