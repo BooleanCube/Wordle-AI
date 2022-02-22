@@ -10,14 +10,13 @@ public class Filtering {
     public static Check known = new Check();
     static String[] openers = {"adieu", "words", "crypt"};
     static ArrayList<String> words = new ArrayList<>();
-    static ArrayList<String> used = new ArrayList<>();
 
-    static HashMap<String, Double> letterFrequency = new HashMap<>();
+    static HashMap<Character, Double> letterFrequency = new HashMap<>();
 
     public static void main(String[] args) throws IOException {
-        initWordList();
-        initFreqList();
-        printRules();
+        Tools.initWordList(words);
+        Tools.initFreqList(words, letterFrequency);
+        Tools.printRules();
         BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
         String guess = find(known);
         System.out.println(guess);
@@ -31,16 +30,47 @@ public class Filtering {
         }
     }
 
+    public static String calculateFilteringStats() throws IOException {
+        int[] attemptTracker = new int[17];
+        Tools.initWordList(words);
+        Tools.initFreqList(words, letterFrequency);
+        for(String word : words) {
+            if(word.equalsIgnoreCase("faxer"))
+                word = word;
+            int tries = 1;
+            Check check = new Check();
+            String guess = find(check);
+            String feedback = Tools.getFeedback(word, guess);
+            while(!feedback.equalsIgnoreCase("GGGGG")) {
+                check.update(guess, feedback.toUpperCase());
+                if(check.isFull()) break;
+                guess = find(check);
+                if(guess.equalsIgnoreCase("There is no 5 letter word I can find that matches this!")) { tries = 17; break; }
+                feedback = Tools.getFeedback(word, guess);
+                ++tries;
+            }
+            attemptTracker[tries-1]++;
+        }
+        StringBuilder r = new StringBuilder();
+        int win = 0;
+        for(int i=0; i<attemptTracker.length; i++) {
+            r.append(i+1).append(" tries: ").append(attemptTracker[i]).append(" - ").append(attemptTracker[i] / 5757d).append("%\n");
+            if(i<6) win += attemptTracker[i];
+        }
+        r.append("\n").append("Win Percentage: ").append(win/5757f).append("%\n");
+        return r.toString();
+    }
+
     static String find(Check known) {
         if(known == null) return "Bad feedback.. read the rules!";
         if(known.isFull()) return "GGs";
         ArrayList<String> possible = new ArrayList<>();
         if(known.isEmpty()) Collections.addAll(possible, openers);
         else for(String word : words) if(compare(word, known)) possible.add(word);
-        for(String word : used) possible.remove(word);
+        for(String word : known.used) possible.remove(word);
         if(possible.isEmpty()) return "There is no 5 letter word I can find that matches this!";
         possible.sort(Comparator.comparingDouble(Filtering::score));
-        used.add(possible.get(0));
+        known.used.add(possible.get(0));
         return possible.get(0);
     }
 
@@ -56,7 +86,7 @@ public class Filtering {
                     return false;
         }
         for(BlackCharacter bc : check.black) {
-            if(bc.idx > -1 && guess.indexOf(bc.value) != guess.lastIndexOf(bc.value))
+            if(bc.idx > -1 && guess.indexOf(bc.value) == bc.tempIdx)
                 return false;
             else if(bc.idx == -1 && guess.indexOf(bc.value) > -1)
                 return false;
@@ -66,54 +96,11 @@ public class Filtering {
 
     static double score(String word) {
         double score = 0d;
-        for(char c : word.toCharArray()) score -= letterFrequency.get(String.valueOf(c));
+        for(char c : word.toCharArray()) score -= letterFrequency.get(c);
         return score;
     }
 
-    static void printRules() {
-        System.out.print("WORDLE AI RULES:\n" +
-                "I will attempt to guess the word in as few tries as possible!\n" +
-                "However, I do need some feedback on the guesses I make! You can tell me where I was right or wrong by typing back a 5 character word with the letters G,Y, and B.\n" +
-                "G = Correct Letter | Correct Position\n" +
-                "Y = Correct Letter | Wrong Position  \n" +
-                "B = Wrong Letter   | Wrong Position  \n");
-    }
 
-    static void initWordList() throws IOException {
-        URL db = new URL("https://www-cs-faculty.stanford.edu/~knuth/sgb-words.txt");
-        BufferedReader bf = new BufferedReader(new InputStreamReader(db.openStream()));
-        for(int i=0; i<5757; i++) words.add(bf.readLine());
-        bf.close();
-    }
-
-    static void initFreqList() {
-        letterFrequency.put("e", 11.1607);
-        letterFrequency.put("a", 8.4966);
-        letterFrequency.put("r", 7.5809);
-        letterFrequency.put("i", 7.5448);
-        letterFrequency.put("o", 7.1635);
-        letterFrequency.put("t", 6.9509);
-        letterFrequency.put("n", 6.6544);
-        letterFrequency.put("s", 5.7351);
-        letterFrequency.put("l", 5.4893);
-        letterFrequency.put("c", 4.5388);
-        letterFrequency.put("u", 3.6308);
-        letterFrequency.put("d", 3.3844);
-        letterFrequency.put("p", 3.1671);
-        letterFrequency.put("m", 3.0129);
-        letterFrequency.put("h", 3.0034);
-        letterFrequency.put("g", 2.4705);
-        letterFrequency.put("b", 2.0720);
-        letterFrequency.put("f", 1.8121);
-        letterFrequency.put("y", 1.7779);
-        letterFrequency.put("w", 1.2899);
-        letterFrequency.put("k", 1.1016);
-        letterFrequency.put("v", 1.0074);
-        letterFrequency.put("x", 0.2902);
-        letterFrequency.put("z", 0.2722);
-        letterFrequency.put("j", 0.1965);
-        letterFrequency.put("q", 0.1962);
-    }
 
 }
 
@@ -121,6 +108,7 @@ class Check {
     public ArrayList<GreenCharacter> green;
     public ArrayList<YellowCharacter> yellow;
     public ArrayList<BlackCharacter> black;
+    public ArrayList<String> used = new ArrayList<>();
 
     public Check() {
         green = new ArrayList<>();
@@ -145,7 +133,8 @@ class Check {
                     for(int j=0; j<black.size(); j++) {
                         BlackCharacter bc = black.get(j);
                         if(bc.value == gc) {
-                            black.set(j, new BlackCharacter(gc, (int)bc.tempIdx));
+                            black.remove(bc);
+                            black.add(j, new BlackCharacter(gc, bc.tempIdx));
                             break;
                         }
                     }
@@ -172,20 +161,17 @@ class Check {
                 if(!met) {
                     for(GreenCharacter gch : green) {
                         if(gch.value == gc) {
-                            black.add(new BlackCharacter(gc, i));
+                            BlackCharacter blc = new BlackCharacter(gc, i);
+                            blc.tempIdx = gch.idx;
+                            black.add(blc);
                             met = true;
                             break;
                         }
                     }
                     if(!met) {
-                        for(YellowCharacter yc : yellow){
-                            if(yc.value == gc) {
-                                black.add(new BlackCharacter(gc, i));
-                                met = true;
-                                break;
-                            }
-                        }
-                        if(!met) black.add(new BlackCharacter(gc, (long)i));
+                        BlackCharacter blc = new BlackCharacter(gc);
+                        blc.tempIdx = i;
+                        black.add(blc);
                     }
                 }
             } else Filtering.known = null;
@@ -221,16 +207,12 @@ class GreenCharacter {
 class BlackCharacter {
     public char value;
     public int idx = -1;
-    public long tempIdx = -1;
+    public int tempIdx = -1;
     public BlackCharacter(char val) {
         value = val;
     }
     public BlackCharacter(char val, int idx) {
         value = val;
         this.idx = idx;
-    }
-    public BlackCharacter(char val, long idx) {
-        value = val;
-        this.tempIdx = idx;
     }
 }
