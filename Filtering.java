@@ -1,5 +1,4 @@
 import java.io.*;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -86,9 +85,7 @@ public class Filtering {
                     return false;
         }
         for(BlackCharacter bc : check.black) {
-            if(bc.idx > -1 && guess.indexOf(bc.value) == bc.tempIdx)
-                return false;
-            else if(bc.idx == -1 && guess.indexOf(bc.value) > -1)
+            if(guess.indexOf(bc.value) > -1)
                 return false;
         }
         return true;
@@ -99,8 +96,6 @@ public class Filtering {
         for(char c : word.toCharArray()) score -= letterFrequency.get(c);
         return score;
     }
-
-
 
 }
 
@@ -134,7 +129,6 @@ class Check {
                         BlackCharacter bc = black.get(j);
                         if(bc.value == gc) {
                             black.remove(bc);
-                            black.add(j, new BlackCharacter(gc, bc.tempIdx));
                             break;
                         }
                     }
@@ -149,6 +143,13 @@ class Check {
                         met = true;
                     }
                 }
+                for(int j=0; j<black.size(); j++) {
+                    BlackCharacter bc = black.get(j);
+                    if(bc.value == gc) {
+                        black.remove(bc);
+                        break;
+                    }
+                }
                 if(!met) yellow.add(new YellowCharacter(gc, i));
             } else if(fb == 'B') {
                 boolean met = false;
@@ -161,17 +162,18 @@ class Check {
                 if(!met) {
                     for(GreenCharacter gch : green) {
                         if(gch.value == gc) {
-                            BlackCharacter blc = new BlackCharacter(gc, i);
-                            blc.tempIdx = gch.idx;
-                            black.add(blc);
                             met = true;
                             break;
                         }
                     }
                     if(!met) {
-                        BlackCharacter blc = new BlackCharacter(gc);
-                        blc.tempIdx = i;
-                        black.add(blc);
+                        for(YellowCharacter yc : yellow) {
+                            if(yc.value == gc) {
+                                met = true;
+                                break;
+                            }
+                        }
+                        if(!met) black.add(new BlackCharacter(gc));
                     }
                 }
             } else Filtering.known = null;
@@ -206,13 +208,7 @@ class GreenCharacter {
 }
 class BlackCharacter {
     public char value;
-    public int idx = -1;
-    public int tempIdx = -1;
     public BlackCharacter(char val) {
         value = val;
-    }
-    public BlackCharacter(char val, int idx) {
-        value = val;
-        this.idx = idx;
     }
 }
