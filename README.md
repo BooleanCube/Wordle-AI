@@ -17,6 +17,6 @@
 ### Artificial Intelligence Algorithms:
 
 - **Filtering**: <br>
-Based on the given feedback the algorithm will filter all possible words until the feedback says the word is correct! Here is the [English Dictionary Used](https://www-cs-faculty.stanford.edu/~knuth/sgb-words.txt) with this algorithm.
+Based on the given feedback the algorithm will filter all possible words until the feedback says the word is correct! After filtering it sorts the list of possible words by letter frequency for each position. `SLATE` being the word with the highest score from the letter position frequencies. There is also a check for similar words that could result in loops such as `found, pound, round, hound, sound, bound` and uses an alternate word containing the most odd letters from the list of similar words and guess that word instead to break the loop and get more hints. The dictionary for this algorithm is the smallwords.txt file in the `src/` folder which only consits of the 2000 words wordle uses.
 
 *written by BooleanCube :]*
