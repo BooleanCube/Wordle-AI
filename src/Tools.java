@@ -15,7 +15,7 @@ public class Tools {
     }
 
     public static void initWordList(ArrayList<String> words) throws IOException {
-        BufferedReader bf = new BufferedReader(new FileReader("src/words.txt"));
+        BufferedReader bf = new BufferedReader(new FileReader("src/smallwords.txt"));
         for(int i=0; i<2315; i++) words.add(bf.readLine());
         bf.close();
     }
