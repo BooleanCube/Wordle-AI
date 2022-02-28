@@ -49,7 +49,6 @@ public class Filtering {
                 feedback = Tools.getFeedback(word, guess);
                 ++tries;
             }
-            if(tries > 6) System.out.println(guess);
             attemptTracker[tries-1]++;
         }
         StringBuilder r = new StringBuilder();
