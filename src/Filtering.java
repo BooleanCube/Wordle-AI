@@ -1,7 +1,5 @@
 import java.io.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
@@ -72,13 +70,13 @@ public class Filtering {
         if(possible.isEmpty()) return "There is no 5 letter word I can find that matches this!";
         letterFrequency = Tools.initFreqList(possible);
         possible.sort(Comparator.comparingDouble(Filtering::score));
-        String unique = uniqueForSimilar(possible);
+        String unique = uniqueForSimilar(possible, known);
         if(unique != null) return unique;
         known.used.add(possible.get(0));
         return possible.get(0);
     }
 
-    static String uniqueForSimilar(ArrayList<String> possible) {
+    static String uniqueForSimilar(ArrayList<String> possible, Check check) {
         char[] letters = possible.get(0).toCharArray();
         ArrayList<Character> oddBalls = new ArrayList<>();
         for(String word : possible) {
@@ -95,6 +93,7 @@ public class Filtering {
         if(count >= 3 && possible.size() > 2) {
             ArrayList<String> newPossible = new ArrayList<>(words);
             newPossible.sort(Comparator.comparingInt(f -> scoreUnique(f, oddBalls)));
+            for(String word : check.used) newPossible.remove(word);
             return newPossible.get(0);
         }
         return null;
