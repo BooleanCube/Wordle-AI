@@ -16,12 +16,13 @@ public class Tools {
 
     public static void initWordList(ArrayList<String> words) throws IOException {
         BufferedReader bf = new BufferedReader(new FileReader("src/smallwords.txt"));
-        for(int i=0; i<2315; i++) words.add(bf.readLine());
+        String input;
+        while((input=bf.readLine()) != null) words.add(input);
         bf.close();
     }
 
     public static HashMap<Character, Integer>[] initFreqList(ArrayList<String> words) {
-        HashMap<Character, Integer> frequencyMap[] = new HashMap[5];
+        HashMap<Character, Integer>[] frequencyMap = new HashMap[5];
         char[] alphabet = new char[]{'a','b','c','d','e','f','g','h', 'i', 'j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
         for(int i=0; i<5; i++) {
             int[] charCounter = new int[26];
