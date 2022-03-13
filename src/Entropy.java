@@ -19,6 +19,7 @@ public class Entropy {
         //letterFrequency = Tools.initFreqList(words);
         Tools.printRules();
         BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
+        //replaced with just raise to decrease time complexity because the first guess is always given as raise by the AI
         String guess = "raise"; //find(known);
         System.out.println(guess);
         String feedback;
@@ -40,7 +41,7 @@ public class Entropy {
         for(String word : words) {
             int tries = 1;
             Check check = new Check();
-            //replaced with just raise to increase time complexity because the first guess is always given as raise by the AI
+            //replaced with just raise to decrease time complexity because the first guess is always given as raise by the AI
             String guess = "raise"; //find(known)
             String feedback = Tools.getFeedback(word, guess);
             while(!feedback.equalsIgnoreCase("GGGGG")) {
